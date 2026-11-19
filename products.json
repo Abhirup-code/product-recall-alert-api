@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "name": "Coffee Maker",
+        "brand": "Philips",
+        "category": "Kitchen Appliance",
+        "model_number": "CM-100"
+    },
+    {
+        "id": 2,
+        "name": "Toaster",
+        "brand": "Prestige",
+        "category": "Kitchen Appliance",
+        "model_number": "T-101"
+    }
+]
