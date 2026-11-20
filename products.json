@@ -12,5 +12,12 @@
         "brand": "Prestige",
         "category": "Kitchen Appliance",
         "model_number": "T-101"
+    },
+    {
+        "id": 10,
+        "name": "Crib",
+        "brand": "Voomf",
+        "category": "Baby",
+        "model_number": "VM-CRIB-01"
     }
 ]
