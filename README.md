@@ -82,3 +82,6 @@ pytest -v
 ```
 
 The tests fake the CPSC API and keep products in memory, so they run offline and never change `products.json`.
+
+<img width="1459" height="951" alt="Screenshot 2026-11-20 at 3 05 07 AM" src="https://github.com/user-attachments/assets/8c6f02ab-188f-448c-a2d6-b9059b697c4d" />
+
