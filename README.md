@@ -85,3 +85,24 @@ The tests fake the CPSC API and keep products in memory, so they run offline and
 
 <img width="1459" height="951" alt="Screenshot 2026-11-20 at 3 05 07 AM" src="https://github.com/user-attachments/assets/8c6f02ab-188f-448c-a2d6-b9059b697c4d" />
 
+##POSTMAN TEST REUSLTS
+
+search recalls
+
+<img width="1275" height="901" alt="image" src="https://github.com/user-attachments/assets/b1dc3fac-d451-4fcf-a030-e6e5a216b9b4" />
+
+next page
+
+<img width="1275" height="901" alt="image" src="https://github.com/user-attachments/assets/9dfc29ce-1fd4-46a6-986a-0610c85b8b9c" />
+
+wrong format
+
+<img width="1275" height="901" alt="image" src="https://github.com/user-attachments/assets/040705cf-f445-4b3f-990c-670a5df16287" />
+
+<img width="1275" height="901" alt="image" src="https://github.com/user-attachments/assets/071a236e-617f-4966-a1cd-922912383c28" />
+
+the PUT fixed
+
+<img width="1275" height="901" alt="image" src="https://github.com/user-attachments/assets/38492068-725d-49f6-a835-34a35afe94b0" />
+
+
