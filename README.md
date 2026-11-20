@@ -25,6 +25,8 @@ Built with Python and FastAPI. Recall data comes from the public CPSC Recalls AP
 | PUT | `/products/{id}` | Update a product | 200 | 400, 404, 415 |
 | DELETE | `/products/{id}` | Delete a product | 200 | 404 |
 | GET | `/recalls?query=crib&offset=0&limit=20` | Search CPSC recalls by product name | 200 | 400, 502, 504 |
+| GET | `/products/{id}/recalls` | Recalls matching one registered product (name + brand) | 200 | 404, 502, 504 |
+| GET | `/alerts` | All registered products that have a matching recall | 200 | 502, 504 |
 
 
 
@@ -52,6 +54,44 @@ Response `200`:
       "manufacturers": ["Example Co."],
       "url": "https://www.cpsc.gov/Recalls/..."
     }
+  ]
+}
+```
+
+(Values above are illustrative; real results come live from CPSC.)
+
+### Recall matching and alerts
+
+Matching searches CPSC by the product's **name**, then keeps only recalls whose manufacturer, product names or title mention the product's **brand**.
+
+`GET /products/1/recalls`
+
+Response `200`:
+
+```json
+{
+  "product": {"id": 1, "name": "Crib", "brand": "Graco", "category": "Baby", "model_number": "G1"},
+  "recalled": true,
+  "total_matches": 1,
+  "recalls": [ { "recall_number": "25001", "title": "Graco Cribs Recalled Due to Fall Hazard", "...": "..." } ],
+  "links": [
+    {"rel": "self", "href": "/products/1/recalls"},
+    {"rel": "product", "href": "/products/1"},
+    {"rel": "alerts", "href": "/alerts"}
+  ]
+}
+```
+
+`GET /alerts`
+
+Response `200`:
+
+```json
+{
+  "products_checked": 3,
+  "products_recalled": 1,
+  "alerts": [
+    {"product": {"id": 1, "name": "Crib", "brand": "Graco"}, "total_matches": 1, "recalls": ["..."]}
   ]
 }
 ```

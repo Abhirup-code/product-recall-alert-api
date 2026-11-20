@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from products import router as products_router
 from recalls import router as recalls_router
+from matching import router as matching_router
 
 app = FastAPI(
     title="Product Recall Alert API Application",
@@ -12,6 +13,7 @@ app = FastAPI(
 
 app.include_router(products_router)
 app.include_router(recalls_router)
+app.include_router(matching_router)
 
 
 #  wrong format returns 400 
