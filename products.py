@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field, field_validator
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 import json
 from pathlib import Path
+from typing import Optional
 
-# Product model using Pydantic:
+# Product model with Pydantic
 class Product(BaseModel):
     id: int = Field(gt=0)
     name: str = Field(min_length=1)
@@ -11,7 +12,7 @@ class Product(BaseModel):
     category: str
     model_number: str
 
-    # Customization of the product name cannot be empty using a validator:
+    #  product name cannot be empty check
     @field_validator("name")
     @classmethod
     def validate_name(cls, value):
@@ -20,10 +21,10 @@ class Product(BaseModel):
         return value
 
 
-# Memory database to store products in JSON format:
+# Memory db  store products in JSON file
 DATA_FILE = Path(__file__).resolve().parent / "products.json"
 
-# Loading products from the JSON file into memory:
+# Load products from JSON file to memory
 def load_products():
     if DATA_FILE.exists():
         with open(DATA_FILE, "r") as file:
@@ -35,7 +36,7 @@ def load_products():
 products_db = load_products()
 
 
-# From POST/products saved in JSON database file:
+# From POST/products saved in JSON dbe file
 def save_products():
     with open(DATA_FILE, "w") as file:
         json.dump(
@@ -44,8 +45,18 @@ def save_products():
             indent=4
         )
 
-# FastAPI router for product-related endpoints:
-router = APIRouter()
+# HATEOAS links to client can find related resources from the response itself
+def with_links(product: Product) -> dict:
+    data = product.model_dump()
+    data["links"] = [
+        {"rel": "self", "href": f"/products/{product.id}"},
+        {"rel": "all-products", "href": "/products"},
+    ]
+    return data
+
+
+# FastAPI router for productendpoints
+router = APIRouter(tags=["Products (entity service)"])
 
 
 @router.post("/products", status_code=201)
@@ -58,28 +69,52 @@ def add_product(product: Product):
                 detail="Product ID already exists"
             )
 
-    # Adding the product to database:
+    # Adding product to db
     products_db.append(product)
     save_products() #in JSON file
 
     return {
         "message": "Product added successfully",
-        "product": product
+        "product": with_links(product)
     }
 
 
-@router.get("/All")
-def get_products():
+# Resource URI for the collection with filtering 
+
+@router.get("/products")
+def get_products(
+    category: Optional[str] = Query(None, description="Only products in this category"),
+    brand: Optional[str] = Query(None, description="Only products of this brand"),
+    offset: int = Query(0, ge=0, description="Number of products to skip"),
+    limit: int = Query(20, ge=1, le=100, description="Max products to return"),
+):
+    matching = [
+        p for p in products_db
+        if (category is None or p.category.lower() == category.lower())
+        and (brand is None or p.brand.lower() == brand.lower())
+    ]
+    page = matching[offset:offset + limit]
+    return {
+        "total": len(matching),
+        "offset": offset,
+        "limit": limit,
+        "products": [with_links(p) for p in page],
+    }
+
+
+# Old URI kept
+@router.get("/All", include_in_schema=False)
+def get_products_old():
     return products_db
 
 
-#Getting a product by ID:
+#Getting product by ID
 @router.get("/products/{product_id}")
 def get_product(product_id: int):
 
     for product in products_db:
         if product.id == product_id:
-            return product
+            return with_links(product)
 
     raise HTTPException(
         status_code=404,
@@ -87,28 +122,28 @@ def get_product(product_id: int):
     )
 
 
-# Update an existing product by ID:
-@router.put("products/{product_id}")
+# Updateing existing product by ID
+@router.put("/products/{product_id}")
 def update_product(product_id: int, updated_product: Product):
     for index, product in enumerate(products_db):
         if product.id == product_id:
 
-            # Keep the existing product ID - primary key should not be changed:
+            # Keeping existing product ID - primary key not changed
             if updated_product.id != product_id:
                 raise HTTPException(
                     status_code=400,
                     detail="Product ID cannot be changed"
                 )
 
-            # Update the product:
+            # Update product
             products_db[index] = updated_product
 
-            # Save changes to products.json:
+            # Save changes to products.json
             save_products()
 
             return {
                 "message": "Product updated successfully",
-                "product": updated_product
+                "product": with_links(updated_product)
             }
 
     raise HTTPException(
@@ -117,16 +152,16 @@ def update_product(product_id: int, updated_product: Product):
     )
 
 
-# Delete a product by ID:
-@router.delete("products/{product_id}")
+# Delete product by ID
+@router.delete("/products/{product_id}")
 def delete_product(product_id: int):
     for product in products_db:
         if product.id == product_id:
 
-            # Remove the product from the in-memory database:
+            # Remove the product from db
             products_db.remove(product)
 
-            # Save the updated list to products.json:
+            # Save  updated list to products.json
             save_products()
 
             return {
